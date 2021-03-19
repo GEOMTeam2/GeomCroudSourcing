@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>GEOM4001G2</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src ="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src ="https://unpkg.com/pbf@3.0.5/dist/pbf.js"></script>
+    <script src ="https://unpkg.com/gtfs-realtime-pbf-js-module@1.0.0/gtfs-realtime.browser.proto.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-sheetrock/1.1.4/dist/sheetrock.min.js"></script>
+
+    <style>
+
+    </style>
+
+</head>
+
+<body>
+    <section class="hero">
+        <div class="hero-inner">
+            <h1>Interactive Travel Memories Map</h1>
+            <h2> Do you miss travelling? So do we - fill out our form using the button below </h2>
+            <h2> to add your most favourite travel destination to our interactive map. </h2>
+
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLScd3O3oHb-9ooeTeSCZwL9Wd0iUQiIWd07QUxkLhNTBNAZTSQ/viewform" class="btn">Fill out our form! </a>
+
+    </section>
+
+    <main>
+      <style>
+        #mapdiv {
+          width: 100%;
+          height: 100%;
+          position: absolute;
+          transition: height 0.5s ease-in-out;
+        }
+
+      </style>
+
+    </head>
+
+    <body>
+      <div id="mapdiv"></div>
+      <script type="text/javascript">
+        var mySpreadsheet = 'https://docs.google.com/spreadsheets/d/1JxqfWYFBQzHt354aasPfazla1CcwP-0Z8chiaSwQBI8/edit#gid=1501210842';
+
+        var mymap = L.map('mapdiv').setView([45.388068, -75.677261], 20);
+
+        L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+          maxZoom: 2,
+          id: 'mapbox/streets-v11',
+          tileSize: 512,
+          zoomOffset: -1,
+          accessToken: 'pk.eyJ1IjoiaGFsZXluaWNoOTMiLCJhIjoiY2traWkyc3NjMDM4cDJvb2FnMm02NGxyMCJ9.KqAVDM0nLeKw-yXhSi1M-Q'
+        }).addTo(mymap);
+
+        // Load table
+        $('#statistics').sheetrock({
+          url: mySpreadsheet,
+          query: "select B,C,D,E,F,G",
+          callback: draw,
+        });
+
+        function draw(error, options, response) {
+          //alert("Here");
+          //console.log(response);
+          data = response.rows;
+          var dataDown = []
+          for (i in data) {
+            if (i > 1) {
+              dataDown.push(data[i].cellsArray[0], data[i].cellsArray[1], data[i].cellsArray[2], data[i].cellsArray[3], parseFloat(data[i].cellsArray[4]), parseFloat(data[i].cellsArray[5]))
+              //console.log(dataDown)
+              addToMap(dataDown[0],dataDown[4],dataDown[5], dataDown[3], dataDown[1],dataDown[2])
+              dataDown = []
+            } else {
+              continue
+            }
+
+            /*console.log(data[i].cellsArray[0])
+            console.log(data[i].cellsArray[1])
+            console.log(data[i].cellsArray[2])
+            console.log(data[i].cellsArray[3])
+            console.log(data[i].cellsArray[4])
+            console.log(data[i].cellsArray[5])*/
+
+          }
+        }
+
+        function addToMap(name, lat, lon, link, tripType, visitNum) {
+          var place = name;
+          var lat =   JSON.parse(lat);
+          var lon =  JSON.parse(lon);
+          var links = link
+          var tripType= tripType
+          var visitNum = visitNum
+          console.log(links)
+          var embed = '<iframe src=' + links + ' width="640" height="480"></iframe>'
+          console.log(embed)
+
+          //console.log(place,lat,lon);
+   				var marker = L.marker([lat, lon], {
+          title: "Location"
+        }).addTo(mymap).bindPopup(embed + "<br>"+"<b>" + place + "</b>"+"<br>" + "Type of Trip: " + tripType + "<br>" + "# of Visits: " + visitNum,{
+          maxWidth: "auto"
+        });
+        }
+
+        mymap.on('click', onMapClick);
+
+        var popup = L.popup();
+
+
+mymap.on('click', onMapClick);
+
+      </script>
+
+</html>
