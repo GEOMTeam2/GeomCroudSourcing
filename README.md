@@ -1,1 +1,3 @@
 # GeomCroudSourcing
+
+permalink: /index.html
