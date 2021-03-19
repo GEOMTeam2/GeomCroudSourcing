@@ -1,3 +1,3 @@
-# GeomCroudSourcing
+# GeomCrowdSourcing
 
 permalink: /index.html
